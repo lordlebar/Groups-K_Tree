@@ -16,6 +16,8 @@ typedef struct to_print
     struct Print *tp[MAX_CHILD + 1];
 }Print;
 
-struct Node insert(Node *node);
+struct Node insert(Node *node, int val);
+struct Node search(Node *node, int val);
+struct Node remove(Node *node, int val);
 
 #endif /* ! K_ARBRE */
