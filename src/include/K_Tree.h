@@ -3,18 +3,17 @@
 
 #define MAX_CHILD 4
 
-typedef struct Node Node;
-
-struct Node
+typedef struct Node
 {
-    int values[MAX_CHILD - 1];
+    int key[MAX_CHILD - 1];
     unsigned nv;
     struct Node *child[MAX_CHILD];
-};
+}TreeNode;
 
-Node *newNode();
-Node *nsplit(Node *node, Node *pnode);
-void printNode(Node *node);
-Node *insert(Node *node, Node *pnode, int val);
+TreeNode *new_node();
+int is_digit(char *n, int len);
+TreeNode *nsplit(TreeNode *node, TreeNode *pnode);
+void printNode(TreeNode *node);
+TreeNode *insert(TreeNode *node, TreeNode *pnode, int val);
 
 #endif /* ! K_ARBRE */
