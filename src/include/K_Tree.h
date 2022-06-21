@@ -3,23 +3,18 @@
 
 #define MAX_CHILD 4
 
-typedef struct K_Tree_Node
+typedef struct Node Node;
+
+struct Node
 {
-    int values[3];
+    int values[MAX_CHILD - 1];
     unsigned nv;
-    struct node *child[4];
-}Node;
+    struct Node *child[MAX_CHILD];
+};
 
-typedef struct to_print
-{
-    char *node_name;
-    struct Print *tp[MAX_CHILD + 1];
-}Print;
-
-void printNode(Node *node)
-Node newNode(int val);
-Node insert(Node *node, int val);
-Node search(Node *node, int val);
-Node remove(Node *node, int val);
+Node *newNode();
+Node *nsplit(Node *node, Node *pnode);
+void printNode(Node *node);
+Node *insert(Node *node, Node *pnode, int val);
 
 #endif /* ! K_ARBRE */
