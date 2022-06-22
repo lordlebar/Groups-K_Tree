@@ -13,7 +13,7 @@ typedef struct Node
 TreeNode *new_node();
 int is_digit(char *n, int len);
 TreeNode *nsplit(TreeNode *node, TreeNode *pnode);
-void printNode(TreeNode *node);
+void print_node(TreeNode *node);
 TreeNode *insert(TreeNode *node, TreeNode *pnode, int val);
 
 #endif /* ! K_ARBRE */

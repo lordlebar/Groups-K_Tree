@@ -39,11 +39,24 @@ void print_node(TreeNode *node)
 }
 
 void print(TreeNode *node){
-    for (size_t i = 0; i < node->nv; i++)
-    {
-        printf("%d", node->key[i]);
-        printf("%d->%d", node->key[i], node->child[i]->key[i]);
+    //write in the file diagraph.dot
+    const char* filename = "diagraph.dot";
+
+    FILE* output_file = fopen(filename, "w+");
+    if (!output_file) {
+        perror("fopen");
+        exit(EXIT_FAILURE);
     }
+
+    fprintf(output_file, "digraph{ // cmd + shift + v (mac)  ||  ctrl + shift + v (win) \n");
+    //fprintf(output_file, " \" %d\" -> \" %d,%d\"   \" %d\" -> \" %d,%d\"  ", node->key[0], node->child[0]->key[0],node->child[0]->key[1], node->key[0], node->child[1]->key[0],node->child[1]->key[1]);
+    //fprintf(output_file, " \" %d\" -> \" %d\"   \" %d\" -> \" %d\"  ", node->key[0], node->child[0]->key[0], node->key[0], node->child[1]->key[0]);
+    fprintf(output_file, " \" %d,6 \" -> \" 3,4 \"\n \" %d,6 \" -> \" 8,9 \"  \n", node->key[0], node->key[0]);
+    fprintf(output_file, "}");
+    printf("Done Writing!\n");
+
+    fclose(output_file);
+    exit(EXIT_SUCCESS);
 }
 
 TreeNode *nsplit(TreeNode *node, TreeNode *parent_node)
@@ -201,8 +214,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage : \"./K_Tree `valeur a inserer`\",\nla valeur trouver ici est %s donc non recevable.\n", argv[1]);
         exit(EXIT_FAILURE);
     }
-    else if (argc >= 3)
-    {
+    else if (argc >= 3){
         fprintf(stderr, "Usage : \"./K_Tree `valeur a inserer`\",\nle nombre d'argument est trop elever. 1 seul argument est autorisé,\nVous en avez mis %d\n", (argc - 1));
         exit(EXIT_FAILURE);
     }
@@ -218,7 +230,7 @@ int main(int argc, char *argv[])
         printf("\n");
         while (1)
         {
-            printf("Insert a value (q for quit): ");
+            printf("Insert a value (q for quit, p for print tree): ");
             fflush(stdout);
             fgets(string, max_string, stdin);
             if (strcmp(string, "q\n") == 0)
@@ -227,12 +239,15 @@ int main(int argc, char *argv[])
                 exit(EXIT_FAILURE);
                 free(root);
             }
+            else if (strcmp(string, "p\n") == 0)
+            {
+                print(root);
+            }
             else
             {
                 root = insert(root, NULL, atoi(string));
                 print_node(root);
             }
-
         }
     }
     return 0;
