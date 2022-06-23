@@ -27,13 +27,13 @@ TreeNode *new_node()
     return n;
 }
 
-int research(TreeNode *node, int val_to_search, size_t h)
+int research(TreeNode *node, int val_to_search, int h)
 {
-    for (size_t i = 0; i < 3; i++) // value in node
+    for (int i = 0; i < 3; i++) // value in node
     {
         if (node->key[i] == val_to_search)
         {
-            printf("Value : %d find at height : %lu\n", node->key[i], h);
+            printf("Value : %d find at height : %d\n", node->key[i], h);
             return 0;
         }
     }

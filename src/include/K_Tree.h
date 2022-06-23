@@ -14,7 +14,7 @@ typedef struct Node
 
 int is_digit(char *n, int len);
 void add_key(TreeNode *node, int n, int val_to_insert);
-int research(TreeNode *node, int val_to_search, size_t h);
+int research(TreeNode *node, int val_to_search, int h);
 void print_Tree(TreeNode *node, int level);
 void spaces(int n);
 
