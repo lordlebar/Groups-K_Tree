@@ -27,25 +27,44 @@ TreeNode *new_node()
     return n;
 }
 
-void research(TreeNode *root, int val_to_search)
+int research(TreeNode *node, int val_to_search, size_t h)
 {
-    int i = 1;
-    while (i <= root->nv && val_to_search > root->key[i])
+    for (size_t i = 0; i < 3; i++) // value in node
     {
-        i++;
-        if (i <= root->nv && val_to_search == root->key[i])
-            printf("Value : %d find\n", root->key[i]);
-        else
+        if (node->key[i] == val_to_search)
         {
-            if (root->child[i] == NULL)
-            {
-                printf("Your value %d is not in tree.\n", val_to_search);
-                return;
-            }
-            else
-                research(root->child[i], val_to_search);
+            printf("Value : %d find at height : %lu\n", node->key[i], h);
+            return 0;
         }
     }
+
+    h += 1; // increment height
+    // Recursive search
+    if (val_to_search < node->key[0])
+    {
+        if (!node->child[0])
+            return -1;
+        return research(node->child[0], val_to_search, h);
+    }
+    else if (val_to_search < node->key[1] || !node->key[1])
+    {
+        if (!node->child[1])
+            return -1;
+        return research(node->child[1], val_to_search, h);
+    }
+    else if (val_to_search < node->key[2] || !node->key[2])
+    {
+        if (!node->child[2])
+            return -1;
+        return research(node->child[2], val_to_search, h);
+    }
+    else
+    {
+        if (!node->child[3])
+            return -1;
+        return research(node->child[3], val_to_search, h);
+    }
+    return -1;
 }
 
 void split_full_node(TreeNode *node, TreeNode **node2, TreeNode **node3, int *k) // node2 = node->left, node3 = node->right, k = node->key
@@ -277,7 +296,11 @@ int main(int argc, char *argv[])
                 printf("Value to research: ");
                 fflush(stdout);
                 fgets(string_research, max_string, stdin);
-                research(root, atoi(string_research));
+                int val = atoi(string_research);
+                if (research(root, val, 0) == -1)
+                {
+                    printf("Value %d is not in the tree\n", val);
+                }
             }
             else // if user want to insert a value
             {

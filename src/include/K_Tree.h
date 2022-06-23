@@ -3,6 +3,8 @@
 
 #define MAX_CHILD 4
 
+#include <stddef.h>
+
 typedef struct Node
 {
     int key[MAX_CHILD - 1];
@@ -12,7 +14,7 @@ typedef struct Node
 
 int is_digit(char *n, int len);
 void add_key(TreeNode *node, int n, int val_to_insert);
-void research(TreeNode *root, int val_to_search);
+int research(TreeNode *node, int val_to_search, size_t h);
 void print_Tree(TreeNode *node, int level);
 void spaces(int n);
 
