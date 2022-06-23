@@ -4,9 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-int is_digit(char *n, int len){
-    for (int i = 0; i < len; i++){
-        if (n[i] < '0' || n[i] > '9')
+int is_digit(char *n, int len)
+{
+    for (int i = 0; i < len; i++)
+    {
+        if (n[i] < '0' || n[i] > '9') // if not a digit
             return 0;
         continue;
     }
@@ -16,239 +18,276 @@ int is_digit(char *n, int len){
 TreeNode *new_node()
 {
     TreeNode *n = malloc(sizeof(TreeNode));
-    if (!n)
+    if (!n) // if malloc fails
     {
-        fprintf(stderr, "-NEWNODE- Memory Allocate Error\n");
+        fprintf(stderr, "Memory Error\n");
         exit(1);
     }
     n->nv = 0;
     return n;
 }
 
-void print_node(TreeNode *node) 
+void research(TreeNode *root, int val_to_search)
 {
-	if (node->nv == 0)
-		return;
-	else if (node->nv == 1)
-		printf("(%d)nv%d\n", node->key[0], node->nv);
-	else if (node->nv == 2)
-		printf("(%d %d)nv%d\n", node->key[0], node->key[1], node->nv);
-	else
-		printf("(%d %d %d)nv%d\n", node->key[0], node->key[1], node->key[2], node->nv);
-	return;
-}
-
-void print(TreeNode *node){
-    //write in the file diagraph.dot
-    const char* filename = "diagraph.dot";
-
-    FILE* output_file = fopen(filename, "w+");
-    if (!output_file) {
-        perror("fopen");
-        exit(EXIT_FAILURE);
-    }
-
-    fprintf(output_file, "digraph{ // cmd + shift + v (mac)  ||  ctrl + shift + v (win) \n");
-    //fprintf(output_file, " \" %d\" -> \" %d,%d\"   \" %d\" -> \" %d,%d\"  ", node->key[0], node->child[0]->key[0],node->child[0]->key[1], node->key[0], node->child[1]->key[0],node->child[1]->key[1]);
-    //fprintf(output_file, " \" %d\" -> \" %d\"   \" %d\" -> \" %d\"  ", node->key[0], node->child[0]->key[0], node->key[0], node->child[1]->key[0]);
-    fprintf(output_file, " \" %d,6 \" -> \" 3,4 \"\n \" %d,6 \" -> \" 8,9 \"  \n", node->key[0], node->key[0]);
-    fprintf(output_file, "}");
-    printf("Done Writing!\n");
-
-    fclose(output_file);
-    exit(EXIT_SUCCESS);
-}
-
-TreeNode *nsplit(TreeNode *node, TreeNode *parent_node)
-{
-    if (node->nv != 3)
+    int i = 1;
+    while (i <= root->nv && val_to_search > root->key[i])
     {
-        fprintf(stderr, "-NSPLIT- TreeNode->nv = %u, must be 3 exactly\n", node->nv);
-        exit(1);
-    }
-
-    if (!parent_node) // is root
-        parent_node = new_node();
-
-    TreeNode *left = new_node(); // instance of new node (left one)
-    left->key[0] = node->key[0];
-    left->nv += 1;
-    left->child[0] = node->child[0];
-    left->child[1] = node->child[1];
-
-    TreeNode *right = new_node(); // instance of new node (right one)
-    right->key[0] = node->key[2];
-    right->nv += 1;
-    right->child[0] = node->child[2];
-    right->child[1] = node->child[3];
-
-    if (parent_node->nv == 0) // (empty parent_node -> root)
-    {
-        parent_node->key[0] = node->key[1];
-        parent_node->child[0] = left;
-        parent_node->child[1] = right;
-        parent_node->nv += 1;
-    }
-
-    else if (parent_node->nv == 1) // (2-parent_node)
-    {
-        if (node->key[2] < parent_node->key[0]) // insert in key[0]
-        {
-            parent_node->key[1] = parent_node->key[0];
-            parent_node->key[0] = node->key[1];
-            parent_node->child[2] = parent_node->child[1];
-            parent_node->child[1] = right;
-            parent_node->child[0] = left;
-        }
-        else // insert in key[1]
-        {
-            parent_node->key[1] = node->key[2];
-            parent_node->child[2] = right;
-            parent_node->child[1] = left;
-        }
-        parent_node->nv += 1;
-    }
-
-    else if (parent_node->nv == 2) // (3-parent_node)
-    {
-        if (node->key[2] < parent_node->key[0]) // insert in key[0]
-        {
-            parent_node->key[2] = parent_node->key[1];
-            parent_node->key[1] = parent_node->key[0];
-            parent_node->key[0] = node->key[2];
-            parent_node->child[3] = parent_node->child[2];
-            parent_node->child[2] = parent_node->child[1];
-            parent_node->child[1] = right;
-            parent_node->child[0] = left;
-        }
-        else if (node->key[2] < parent_node->key[1]) // insert in key[1]
-        {
-            parent_node->key[2] = parent_node->key[1];
-            parent_node->key[1] = node->key[2];
-            parent_node->child[3] = parent_node->child[2];
-            parent_node->child[2] = right;
-            parent_node->child[1] = left;
-        }
-        else // insert in key[2]
-        {
-            parent_node->key[2] = node->key[2];
-            parent_node->child[3] = right;
-            parent_node->child[2] = left;
-        }
-        parent_node->nv += 1;
-    }
-    free(node);
-    return parent_node;
-}
-
-TreeNode *insert(TreeNode *node, TreeNode *parent_node, int val_to_insert)
-{
-    if (node->nv == 3) // if 4-node -> Split
-        node = nsplit(node, parent_node);
-    // is leaf
-    if (!node->child[0])
-    {
-        if (node->nv == 0) // (empty node) & insert in key[0]
-        {
-            node->key[0] = val_to_insert;
-            node->nv += 1;
-        }
-
-        else if (node->nv == 1) // (2-node)      
-        {
-            if (val_to_insert < node->key[0]) // insert in key[0]
-            {
-                node->key[1] = node->key[0];
-                node->key[0] = val_to_insert;
-                print_node(node);
-            }
-            else // insert in key[1]
-                node->key[1] = val_to_insert;
-            node->nv += 1;
-        }
-
-        else if (node->nv == 2)// (3-node)
-        {
-            if (val_to_insert < node->key[0]) // insert in key[0]
-            {
-                node->key[2] = node->key[1];
-                node->key[1] = node->key[0];
-                node->key[0] = val_to_insert;
-            }
-            else if (val_to_insert < node->key[1]) // insert in key[1]
-            {
-                node->key[2] = node->key[1];
-                node->key[1] = val_to_insert;
-            }
-            else // insert in key[2]
-                node->key[2] = val_to_insert;
-            node->nv += 1;
-        }
-
-        if (node->nv > 3) // Check node->nv
-        {
-            fprintf(stderr, "-INSERTION- TreeNode->nv = %u out of range, must be  0 < nv < 3\n", node->nv);
-            exit(1);
-        }
-    }
-    else // not leaf -> recursion
-    {
-        if (val_to_insert < node->key[0])
-            node = insert(node->child[0], node, val_to_insert);
-        else if (val_to_insert < node->key[1] || node->nv == 1)
-            node = insert(node->child[1], node, val_to_insert);
-        else if (val_to_insert < node->key[2] || node->nv == 2)
-            node = insert(node->child[2], node, val_to_insert);
+        i++;
+        if (i <= root->nv && val_to_search == root->key[i])
+            printf("Value : %d find\n", root->key[i]);
         else
-            node = insert(node->child[3], node, val_to_insert);
+        {
+            if (root->child[i] == NULL)
+            {
+                printf("Your value %d is not in tree.\n", val_to_search);
+                return;
+            }
+            else
+                research(root->child[i], val_to_search);
+        }
     }
-    return node;
 }
 
-enum { max_string = 127 };
-static char string[max_string + 1] = "";
+void split_full_node(TreeNode *node, TreeNode **node2, TreeNode **node3, int *k) // node2 = node->left, node3 = node->right, k = node->key
+{
+    *k = node->key[1];
+    *node2 = new_node();
+    *node3 = new_node();
+    node2[0]->nv = 2;
+    node3[0]->nv = 2;
+    node2[0]->child[0] = node->child[0];
+    node2[0]->child[1] = node->child[1];
+    node3[0]->child[0] = node->child[2];
+    node3[0]->child[1] = node->child[3];
+    node2[0]->key[0] = node->key[0];
+    node3[0]->key[0] = node->key[2];
+    printf("Split.\n");
+}
+
+void add_key(TreeNode *node, int n, int val_to_insert) // add new key to node
+{
+    int i;
+    node->child[node->nv] = NULL;
+    for (i = node->nv - 1; i > n; i--)
+        node->key[i] = node->key[i - 1];
+
+    node->key[n] = val_to_insert;
+    node->nv++;
+    printf("Value : %d insert\n", val_to_insert);
+}
+
+void insert__(TreeNode *parent_node, int val_to_insert, int n, TreeNode *node)
+{
+    if (node == NULL)
+    {
+        add_key(parent_node, n, val_to_insert);
+        return;
+    }
+    if (node->nv == 4)
+    {
+        TreeNode *node2, *node3;
+        int k;
+        int i = 0;
+        split_full_node(node, &node2, &node3, &k);
+
+        for (i = parent_node->nv; i > n; i--)
+            parent_node->child[i] = parent_node->child[i - 1];
+
+        for (i = parent_node->nv - 1; i > n; i--)
+            parent_node->key[i] = parent_node->key[i - 1];
+
+        parent_node->key[n] = k;
+        parent_node->child[n] = node2;
+        parent_node->child[n + 1] = node3;
+        parent_node->nv++;
+        free(node);
+        if (val_to_insert < k) // if val_to_insert < k
+            insert__(parent_node, val_to_insert, 0, node2);
+
+        else // if val_to_insert > k or val_to_insert == k
+            insert__(parent_node, val_to_insert, 1, node3);
+    }
+    else // if node->nv < 4
+    {
+        if (val_to_insert < node->key[0]) // if val_to_insert < node->key[0]
+            insert__(node, val_to_insert, 0, node->child[0]);
+
+        else if (node->nv == 2)
+            insert__(node, val_to_insert, 1, node->child[1]);
+
+        else
+        {
+            if (val_to_insert < node->key[1]) // if val_to_insert < node->key[1]
+                insert__(node, val_to_insert, 1, node->child[1]);
+            else
+                insert__(node, val_to_insert, 2, node->child[2]);
+        }
+    }
+}
+
+void insert_(TreeNode *node, int val_to_insert)
+{
+    if (val_to_insert < node->key[0]) // if val_to_insert < node->key[0]
+        insert__(node, val_to_insert, 0, node->child[0]);
+    else // if val_to_insert >= node->key[0]
+    {
+        if (node->nv == 2)
+            insert__(node, val_to_insert, 1, node->child[1]);
+        else // if node->nv == 1 or 3
+        {
+            if (val_to_insert < node->key[1]) // if val_to_insert < node->key[1]
+            {
+                insert__(node, val_to_insert, 1, node->child[1]);
+            }
+            else // if val_to_insert >= node->key[1]
+            {
+                printf("%d > %d\n", val_to_insert, node->key[1]);
+                insert__(node, val_to_insert, 2, node->child[2]);
+            }
+        }
+    }
+}
+
+TreeNode *insert(TreeNode *root, int val_to_insert)
+{
+    if (root == NULL || root->nv == 0) // if root is null or root is empty
+    {
+        TreeNode *node = new_node();
+        node->nv = 2;
+        node->child[0] = NULL;
+        node->child[1] = NULL;
+        node->key[0] = val_to_insert;
+        printf("Value : %d insert\n", val_to_insert);
+        return node;
+    }
+    else if (root->nv == 4) // node is full
+    {
+        TreeNode *node_ = new_node();
+        node_->nv = 2;
+        split_full_node(root, &node_->child[0], &node_->child[1], &node_->key[0]);
+        insert_(node_, val_to_insert);
+        free(root);
+        return node_;
+    }
+    else // node is not full
+    {
+        insert_(root, val_to_insert);
+        return root;
+    }
+}
+
+/*------------------------------------------------Test Graphiz------------------------------------------------*/
+// void print_Tree(TreeNode *node) // print tree
+// {
+//     // write in the file diagraph.dot
+//     const char *filename = "diagraph.dot";
+
+//     FILE *output_file = fopen(filename, "w+");
+//     if (!output_file) // if file is not open
+//     {
+//         perror("fopen");
+//         exit(EXIT_FAILURE);
+//     }
+
+//     fprintf(output_file, "digraph{\n");
+//     fprintf(output_file, " \" %d\" -> \" %d,%d\"   \" %d\" -> \" %d,%d\"  ", node->key[0], node->child[0]->key[0], node->child[0]->key[1], node->key[0], node->child[1]->key[0], node->child[1]->key[1]);
+//     fprintf(output_file, "}");
+//     printf("Done Writing !\n");
+
+//     fclose(output_file);
+//     free_tree(node);
+// }
+/*------------------------------------------------Test Graphiz------------------------------------------------*/
+
+void spaces(int n)
+{
+    int i;
+    for (i = 0; i < n; i++)
+        printf("   ");
+}
+
+void print_Tree(TreeNode *node, int n_node)
+{
+    int i;
+    if (node == NULL)
+        return;
+    print_Tree(node->child[0], n_node + 1);
+    for (i = 0; i < node->nv - 1; i++)
+    {
+        spaces(n_node);
+        printf("%d\n", node->key[i]);
+        print_Tree(node->child[i + 1], n_node + 1);
+    }
+}
+
+void free_tree(TreeNode *root)
+{
+    if (root == NULL)
+        return;
+    for (int i = 0; i < root->nv; i++)
+        free_tree(root->child[i]);
+    free(root);
+}
+
+enum
+{
+    max_string = 127 // max string length
+};
+static char string_insert[max_string + 1] = "";   // string to insert
+static char string_research[max_string + 1] = ""; // string to research
 
 int main(int argc, char *argv[])
 {
-    if (argc <= 1){
-        fprintf(stderr, "Usage : \"./K_Tree `valeur a inserer`\",\nla valeur trouver ici est %s donc non recevable.\n", argv[1]);
+    char *endPtr;
+    strtol(argv[1], &endPtr, 10);
+    if (argc <= 1) // if no argument
+    {
+        fprintf(stderr, "Usage : \"./K_Tree `value to insert`\",\nThe value found here is not admissible: %s.\n", argv[1]);
         exit(EXIT_FAILURE);
     }
-    else if (argc >= 3){
-        fprintf(stderr, "Usage : \"./K_Tree `valeur a inserer`\",\nle nombre d'argument est trop elever. 1 seul argument est autorisé,\nVous en avez mis %d\n", (argc - 1));
+    else if (argc >= 3) // if there is more than one argument
+    {
+        fprintf(stderr, "Usage : \"./K_Tree `value to insert`\",\nnumber of argument is too high.\nYou put some: %d\n", (argc - 1));
         exit(EXIT_FAILURE);
     }
-    else if (is_digit(argv[1], strlen(argv[1])) == 0){
-        fprintf(stderr, "Usage : \"./K_Tree `valeur a inserer`\",\nVeuillez inserez un nombre.\nVotre valeur actuel est : `%s`\n", argv[1]);
+    else if (endPtr == argv[1]) // if argv[1] is not a digit
+    {
+        fprintf(stderr, "Usage : \"./K_Tree `value to insert`\",\nInsert a number.\nYour value is : `%s`\n", argv[1]);
         exit(EXIT_FAILURE);
     }
-    if (argc == 2)
+    if (argc == 2) // if there is only one argument
     {
         TreeNode *root = new_node();
-        root = insert(root, NULL, atoi(argv[1]));
-        print_node(root);
-        printf("\n");
-        while (1)
+        root = insert(root, atoi(argv[1])); // insert the value of argv[1]
+        while (1)                           // loop until user want to quit
         {
-            printf("Insert a value (q for quit, p for print tree): ");
+            printf("Insert a value (q for quit, p for print tree, r for research): ");
             fflush(stdout);
-            fgets(string, max_string, stdin);
-            if (strcmp(string, "q\n") == 0)
+            fgets(string_insert, max_string, stdin);
+            if (strcmp(string_insert, "q\n") == 0) // if user want to quit
             {
                 printf("exit success...\n");
-                exit(EXIT_FAILURE);
-                free(root);
+                free_tree(root);
+                exit(EXIT_SUCCESS);
             }
-            else if (strcmp(string, "p\n") == 0)
+            else if (strcmp(string_insert, "p\n") == 0) // if user want to print tree
+                print_Tree(root, 0);
+            else if (strcmp(string_insert, "r\n") == 0) // if user want to research
             {
-                print(root);
+                printf("Value to research: ");
+                fflush(stdout);
+                fgets(string_research, max_string, stdin);
+                research(root, atoi(string_research));
             }
-            else
+            else // if user want to insert a value
             {
-                root = insert(root, NULL, atoi(string));
-                print_node(root);
+                strtol(string_insert, &endPtr, 10);
+                if (endPtr == string_insert)
+                    fprintf(stderr, "Bad string format (is not number): %s", endPtr);
+                else
+                    root = insert(root, atoi(string_insert));
             }
         }
+        return 0;
     }
-    return 0;
 }

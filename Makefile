@@ -16,4 +16,3 @@ check: $(OBJS)
 
 clean:
 	$(RM) $(BIN) $(OBJS)
-	$(RM) -rf src/K_Tree.dSYM
