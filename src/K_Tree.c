@@ -257,8 +257,6 @@ static char string_research[max_string + 1] = ""; // string to research
 
 int main(int argc, char *argv[])
 {
-    char *endPtr;
-    strtol(argv[1], &endPtr, 10);
     if (argc <= 1) // if no argument
     {
         fprintf(stderr, "Usage : \"./K_Tree `value to insert`\",\nThe value found here is not admissible: %s.\n", argv[1]);
@@ -269,7 +267,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage : \"./K_Tree `value to insert`\",\nnumber of argument is too high.\nYou put some: %d\n", (argc - 1));
         exit(EXIT_FAILURE);
     }
-    else if (endPtr == argv[1]) // if argv[1] is not a digit
+
+    else if (is_digit(argv[1], strlen(argv[1])) == 0) // if argv[1] is not a digit
     {
         fprintf(stderr, "Usage : \"./K_Tree `value to insert`\",\nInsert a number.\nYour value is : `%s`\n", argv[1]);
         exit(EXIT_FAILURE);
@@ -283,6 +282,9 @@ int main(int argc, char *argv[])
             printf("Insert a value (q for quit, p for print tree, r for research): ");
             fflush(stdout);
             fgets(string_insert, max_string, stdin);
+            char *endPtr;
+
+            strtol(argv[1], &endPtr, 10);
             if (strcmp(string_insert, "q\n") == 0) // if user want to quit
             {
                 printf("exit success...\n");

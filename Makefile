@@ -12,7 +12,7 @@ $(BIN): $(OBJS)
 
 check: $(OBJS)
 	$(CC) -o $(BIN) $(OBJS)
-	./K_Tree
+	./K_Tree 0
 
 clean:
 	$(RM) $(BIN) $(OBJS)
