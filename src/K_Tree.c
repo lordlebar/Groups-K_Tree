@@ -72,22 +72,22 @@ void split_full_node(TreeNode *node, TreeNode **node2, TreeNode **node3, int *k)
     *k = node->key[1];
     *node2 = new_node();
     *node3 = new_node();
-    node2[0]->nv = 2;
-    node3[0]->nv = 2;
+    node2[0]->nv = 1;
+    node3[0]->nv = 1;
     node2[0]->child[0] = node->child[0];
     node2[0]->child[1] = node->child[1];
     node3[0]->child[0] = node->child[2];
     node3[0]->child[1] = node->child[3];
     node2[0]->key[0] = node->key[0];
     node3[0]->key[0] = node->key[2];
-    printf("Split.\n");
+    printf("Split Success.\n");
 }
 
 void add_key(TreeNode *node, int n, int val_to_insert) // add new key to node
 {
     int i;
-    node->child[node->nv] = NULL;
-    for (i = node->nv - 1; i > n; i--)
+    node->child[node->nv + 1] = NULL;
+    for (i = node->nv; i > n; i--)
         node->key[i] = node->key[i - 1];
 
     node->key[n] = val_to_insert;
@@ -102,17 +102,17 @@ void insert__(TreeNode *parent_node, int val_to_insert, int n, TreeNode *node)
         add_key(parent_node, n, val_to_insert);
         return;
     }
-    if (node->nv == 4)
+    if (node->nv == MAX_CHILD - 1) // node->nv == 4
     {
         TreeNode *node2, *node3;
         int k;
         int i = 0;
         split_full_node(node, &node2, &node3, &k);
 
-        for (i = parent_node->nv; i > n; i--)
+        for (i = parent_node->nv + 1; i > n; i--)
             parent_node->child[i] = parent_node->child[i - 1];
 
-        for (i = parent_node->nv - 1; i > n; i--)
+        for (i = parent_node->nv; i > n; i--)
             parent_node->key[i] = parent_node->key[i - 1];
 
         parent_node->key[n] = k;
@@ -131,7 +131,7 @@ void insert__(TreeNode *parent_node, int val_to_insert, int n, TreeNode *node)
         if (val_to_insert < node->key[0]) // if val_to_insert < node->key[0]
             insert__(node, val_to_insert, 0, node->child[0]);
 
-        else if (node->nv == 2)
+        else if (node->nv == 1)
             insert__(node, val_to_insert, 1, node->child[1]);
 
         else
@@ -150,7 +150,7 @@ void insert_(TreeNode *node, int val_to_insert)
         insert__(node, val_to_insert, 0, node->child[0]);
     else // if val_to_insert >= node->key[0]
     {
-        if (node->nv == 2)
+        if (node->nv == 1)
             insert__(node, val_to_insert, 1, node->child[1]);
         else // if node->nv == 1 or 3
         {
@@ -172,23 +172,23 @@ TreeNode *insert(TreeNode *root, int val_to_insert)
     if (root == NULL || root->nv == 0) // if root is null or root is empty
     {
         TreeNode *node = new_node();
-        node->nv = 2;
+        node->nv = 1;
         node->child[0] = NULL;
         node->child[1] = NULL;
         node->key[0] = val_to_insert;
         printf("Value : %d insert\n", val_to_insert);
         return node;
     }
-    else if (root->nv == 4) // node is full
+    else if (root->nv == MAX_CHILD - 1) // node is full root->nv == 3
     {
         TreeNode *node_ = new_node();
-        node_->nv = 2;
+        node_->nv = 1;
         split_full_node(root, &node_->child[0], &node_->child[1], &node_->key[0]);
         insert_(node_, val_to_insert);
         free(root);
         return node_;
     }
-    else // node is not full
+    else // node is not full and not empty
     {
         insert_(root, val_to_insert);
         return root;
@@ -231,7 +231,7 @@ void print_Tree(TreeNode *node, int n_node)
     if (node == NULL)
         return;
     print_Tree(node->child[0], n_node + 1);
-    for (i = 0; i < node->nv - 1; i++)
+    for (i = 0; i < node->nv; i++)
     {
         spaces(n_node);
         printf("%d\n", node->key[i]);
@@ -243,7 +243,7 @@ void free_tree(TreeNode *root)
 {
     if (root == NULL)
         return;
-    for (int i = 0; i < root->nv; i++)
+    for (int i = 0; i < root->nv + 1; i++)
         free_tree(root->child[i]);
     free(root);
 }

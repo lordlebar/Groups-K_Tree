@@ -10,7 +10,7 @@ typedef struct Node
     int key[MAX_CHILD - 1];
     int nv;
     struct Node *child[MAX_CHILD];
-}TreeNode;
+} TreeNode;
 
 int is_digit(char *n, int len);
 void add_key(TreeNode *node, int n, int val_to_insert);
